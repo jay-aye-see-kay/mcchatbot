@@ -3,9 +3,9 @@
 from setuptools import setup, find_packages
 
 setup(name='mcchatbot',
-      version='1.0',
+      version='0.1',
       # Modules to import from other scripts:
       packages=find_packages(),
       # Executables
-      scripts=["mcchatbot"],
+      scripts=["mcchatbot.py"],
      )
