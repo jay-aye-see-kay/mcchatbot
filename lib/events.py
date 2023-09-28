@@ -65,7 +65,7 @@ class LogEvent(ABC):
 class MessageEvent(LogEvent):
     time: str
     username: str
-    text: str = ""
+    text: str
 
     def to_s(self):
         return f'at "{self.time}" {self.username} said "{self.text}"\n'
@@ -92,7 +92,7 @@ class LeaveEvent(LogEvent):
 @dataclass
 class DeathEvent(LogEvent):
     time: str
-    text: str = ""
+    text: str
 
     def to_s(self):
         return f'at "{self.time}" {self.text} (they died)\n'
@@ -102,7 +102,7 @@ class DeathEvent(LogEvent):
 class GameModeEvent(LogEvent):
     time: str
     username: str
-    game_mode: str = ""
+    game_mode: str
 
     def to_s(self):
         return (
@@ -142,6 +142,7 @@ def parse_event(line: str) -> LogEvent | None:
         )
     elif is_death(line_content):
         text = re.sub(r"^\[.*\]: ", "", line)
+        # FIXME should parse out player name
         return DeathEvent(time=match.group("time"), text=text)
     elif game_mode_match:
         return GameModeEvent(

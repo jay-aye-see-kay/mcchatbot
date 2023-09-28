@@ -1,6 +1,7 @@
 import unittest
 
-from lib.events import JoinEvent, is_death, parse_event
+from lib.events import (DeathEvent, GameModeEvent, JoinEvent, LeaveEvent,
+                        MessageEvent, is_death, parse_event)
 
 # logs that should be ingored by `is_death()` (it doesn't see timestamps)
 is_death_ignorable_logs = [
@@ -49,6 +50,32 @@ class TestParseEvent(unittest.TestCase):
         self.assertEqual(
             parse_event("[13:37:07 INFO]: Player_YY joined the game"),
             JoinEvent("13:37:07", "Player_YY"),
+        )
+
+    def test_leave_event(self):
+        self.assertEqual(
+            parse_event("[13:37:07 INFO]: Player_YY left the game"),
+            LeaveEvent("13:37:07", "Player_YY"),
+        )
+
+    def test_death_event(self):
+        self.assertEqual(
+            parse_event("[13:37:07 INFO]: Player_YY blew up"),
+            DeathEvent("13:37:07", "Player_YY blew up"),
+        )
+
+    def test_game_mode_event(self):
+        self.assertEqual(
+            parse_event(
+                "[13:37:07 INFO]: [Player_YY: Set own game mode to Survival Mode]"
+            ),
+            GameModeEvent("13:37:07", "Player_YY", "Survival Mode"),
+        )
+
+    def test_message_event(self):
+        self.assertEqual(
+            parse_event("[13:37:07 INFO]: <Player_YY> hey bud"),
+            MessageEvent("13:37:07", "Player_YY", "hey bud"),
         )
 
 
