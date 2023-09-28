@@ -1,7 +1,7 @@
 import unittest
 
 from lib.events import (DeathEvent, GameModeEvent, JoinEvent, LeaveEvent,
-                        MessageEvent, is_death, parse_event)
+                        MessageEvent, is_death, parse_event, parse_time)
 
 # logs that should be ingored by `is_death()` (it doesn't see timestamps)
 is_death_ignorable_logs = [
@@ -49,25 +49,25 @@ class TestParseEvent(unittest.TestCase):
     def test_join_event(self):
         self.assertEqual(
             parse_event("[13:37:07 INFO]: Player_YY joined the game"),
-            JoinEvent("13:37:07", "Player_YY"),
+            JoinEvent(parse_time("13:37:07"), "Player_YY"),
         )
 
     def test_leave_event(self):
         self.assertEqual(
             parse_event("[13:37:07 INFO]: Player_YY left the game"),
-            LeaveEvent("13:37:07", "Player_YY"),
+            LeaveEvent(parse_time("13:37:07"), "Player_YY"),
         )
 
     def test_death_event(self):
         self.assertEqual(
             parse_event("[13:37:07 INFO]: Player_YY blew up"),
-            DeathEvent("13:37:07", "Player_YY", "blew up"),
+            DeathEvent(parse_time("13:37:07"), "Player_YY", "blew up"),
         )
 
     def test_death_event_alt(self):
         self.assertEqual(
             parse_event("[13:37:07 INFO]: Player_YY was slain by Iron Golem"),
-            DeathEvent("13:37:07", "Player_YY", "was slain by Iron Golem"),
+            DeathEvent(parse_time("13:37:07"), "Player_YY", "was slain by Iron Golem"),
         )
 
     def test_game_mode_event(self):
@@ -75,13 +75,13 @@ class TestParseEvent(unittest.TestCase):
             parse_event(
                 "[13:37:07 INFO]: [Player_YY: Set own game mode to Survival Mode]"
             ),
-            GameModeEvent("13:37:07", "Player_YY", "Survival Mode"),
+            GameModeEvent(parse_time("13:37:07"), "Player_YY", "Survival Mode"),
         )
 
     def test_message_event(self):
         self.assertEqual(
             parse_event("[13:37:07 INFO]: <Player_YY> hey bud"),
-            MessageEvent("13:37:07", "Player_YY", "hey bud"),
+            MessageEvent(parse_time("13:37:07"), "Player_YY", "hey bud"),
         )
 
 

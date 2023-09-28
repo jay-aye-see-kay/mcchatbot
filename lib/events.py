@@ -1,6 +1,9 @@
 import re
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from datetime import datetime
+
+from pydantic.dataclasses import dataclass
+
+from lib.db import BaseEvent
 
 deaths = [
     "blew up",
@@ -55,64 +58,63 @@ def is_death(line: str) -> bool:
     return False
 
 
-class LogEvent(ABC):
-    @abstractmethod
-    def to_s(self):
-        return ""
-
-
 @dataclass
-class MessageEvent(LogEvent):
-    time: str
+class MessageEvent(BaseEvent):
+    time: datetime
     username: str
     text: str
 
-    def to_s(self):
+    def __str__(self):
         return f'at "{self.time}" {self.username} said "{self.text}"\n'
 
 
 @dataclass
-class JoinEvent(LogEvent):
-    time: str
+class JoinEvent(BaseEvent):
+    time: datetime
     username: str
 
-    def to_s(self):
+    def __str__(self):
         return f'at "{self.time}" {self.username} joined the game\n'
 
 
 @dataclass
-class LeaveEvent(LogEvent):
-    time: str
+class LeaveEvent(BaseEvent):
+    time: datetime
     username: str
 
-    def to_s(self):
+    def __str__(self):
         return f'at "{self.time}" {self.username} left the game\n'
 
 
 @dataclass
-class DeathEvent(LogEvent):
-    time: str
+class DeathEvent(BaseEvent):
+    time: datetime
     username: str
     description: str
 
-    def to_s(self):
+    def __str__(self):
         return f'at "{self.time}" {self.username} {self.description} (they died)\n'
 
 
 @dataclass
-class GameModeEvent(LogEvent):
-    time: str
+class GameModeEvent(BaseEvent):
+    time: datetime
     username: str
     game_mode: str
 
-    def to_s(self):
+    def __str__(self):
         return (
             f'at "{self.time}" {self.username} '
             f"set their game mode to {self.game_mode}\n"
         )
 
 
-def parse_event(line: str) -> LogEvent | None:
+
+def parse_time(time_str: str) -> datetime:
+    return datetime.strptime(time_str, "%H:%M:%S")
+
+
+def parse_event(line: str) -> BaseEvent | None:
     match = re.search(
         r"\[(?P<time>\d{2}:\d{2}:\d{2}) INFO\]: (?:<(?P<username>.+?)> )?(?P<text>.*)",
         line,
@@ -125,30 +127,30 @@ def parse_event(line: str) -> LogEvent | None:
         return
     elif match.group("username"):
         return MessageEvent(
-            time=match.group("time"),
+            time=parse_time(match.group("time")),
             username=match.group("username"),
             text=match.group("text"),
         )
     elif line.endswith("joined the game"):
         username = re.sub(r" joined the game$", "", line_content)
         return JoinEvent(
-            time=match.group("time"),
+            time=parse_time(match.group("time")),
             username=username,
         )
     elif line.endswith("left the game"):
         username = re.sub(r" left the game$", "", line_content)
         return LeaveEvent(
-            time=match.group("time"),
+            time=parse_time(match.group("time")),
             username=username,
         )
     elif is_death(line_content):
         words = line_content.split()
         username = words[0]
         description = " ".join(words[1:])
-        return DeathEvent(match.group("time"), username, description)
+        return DeathEvent(parse_time(match.group("time")), username, description)
     elif game_mode_match:
         return GameModeEvent(
-            time=match.group("time"),
+            time=parse_time(match.group("time")),
             username=game_mode_match.group("username"),
             game_mode=game_mode_match.group("game_mode"),
         )

@@ -11,12 +11,16 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        python = pkgs.python3.withPackages (ps: [ ps.openai ]);
+        python = pkgs.python3.withPackages (p: [ p.openai p.pydantic ]);
 
         mcchatbot = pkgs.python3Packages.buildPythonApplication {
           pname = "mcchatbot";
           version = "0.1";
-          propagatedBuildInputs = [ pkgs.python3Packages.openai ];
+          propagatedBuildInputs = [
+            pkgs.docker # depends on docker cli
+            pkgs.python3Packages.openai
+            pkgs.python3Packages.pydantic
+          ];
           src = ./.;
         };
 
@@ -33,6 +37,10 @@
 
         devShells.default = pkgs.mkShell {
           buildInputs = [ python mcchatbot ];
+
+          shellHook = ''
+            export CONTAINER_NAME=business
+          '';
         };
       });
-    }
+}

@@ -62,9 +62,9 @@ def respond_to_event(cfg: Config, event: LogEvent):
     # save this message (it won't be in the logs)
     all_messages.append(MessageEvent(now_str(), "Wheatley", response))
     process_cmd = [
-        "docker-compose",
+        "docker-compose",  ## FIXME convert to docker command
         "exec",
-        "business",
+        cfg.container_name,
         "rcon-cli",
         "tellraw",
         "@a",
