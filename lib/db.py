@@ -1,5 +1,8 @@
+import sqlite3
 from abc import ABC
 from datetime import datetime
+
+from lib.config import Config
 
 
 class BaseEvent(ABC):
@@ -23,3 +26,9 @@ class BaseEvent(ABC):
             f"INSERT INTO {self.table_name()} VALUES ({template})",
             tuple(getattr(self, k) for k in self.columns()),
         )
+
+
+def init_db(db_path: str) -> sqlite3.Connection:
+    con = sqlite3.connect(db_path)
+    con.row_factory = sqlite3.Row
+    return con
