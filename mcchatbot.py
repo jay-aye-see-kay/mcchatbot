@@ -11,14 +11,11 @@ from time import sleep
 import openai
 
 from lib.config import Config
-from lib.events import LeaveEvent, LogEvent, MessageEvent, parse_event
+from lib.db import BaseEvent
+from lib.events import LeaveEvent, MessageEvent, parse_event
 
 
-def now_str() -> str:
-    return datetime.strftime(datetime.now(), "%H:%M:%S")
-
-
-def should_respond(event: LogEvent):
+def should_respond(event: BaseEvent):
     if isinstance(event, LeaveEvent):
         return False
     return True
@@ -26,10 +23,10 @@ def should_respond(event: LogEvent):
 
 init_time = datetime.now()
 
-all_messages: list[LogEvent] = []
+all_messages: list[BaseEvent] = []
 
 
-def respond_to_event(cfg: Config, event: LogEvent):
+def respond_to_event(cfg: Config, event: BaseEvent):
     # store all old logs in memory
     all_messages.append(event)
 
@@ -44,7 +41,7 @@ def respond_to_event(cfg: Config, event: LogEvent):
         first_idx = len(all_messages) - cfg.context_message_limit
 
     for msg in all_messages[first_idx:]:
-        chat_msg += msg.to_s()
+        chat_msg += str(msg)
     if not should_respond(event):
         return
     # get response
@@ -60,9 +57,9 @@ def respond_to_event(cfg: Config, event: LogEvent):
     response = re.sub(r"\n", " ", response)
     response = re.sub(r'"', "", response)
     # save this message (it won't be in the logs)
-    all_messages.append(MessageEvent(now_str(), "Wheatley", response))
+    all_messages.append(MessageEvent(datetime.now(), "Wheatley", response))
     process_cmd = [
-        "docker-compose",  ## FIXME convert to docker command
+        "docker",
         "exec",
         cfg.container_name,
         "rcon-cli",
@@ -75,7 +72,7 @@ def respond_to_event(cfg: Config, event: LogEvent):
 
 def listen_to_events(cfg: Config):
     process = subprocess.Popen(
-        ["docker", "logs", "-f", cfg.container_name],
+        ["docker", "logs", "--follow", cfg.container_name, "--since", "0m"],
         stdout=subprocess.PIPE,
         universal_newlines=True,
     )

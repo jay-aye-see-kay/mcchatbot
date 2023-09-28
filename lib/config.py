@@ -1,5 +1,4 @@
 import os
-from dataclasses import dataclass
 
 system_message = """
     You are the chacter Wheatley from Portal 2 chatting with people playing minecraft.
@@ -12,11 +11,12 @@ system_message = """
     If there is nothing to say in the coversation make a joke or insult someone."""
 
 
-@dataclass
 class Config:
-    container_name = os.environ["CONTAINER_NAME"]
-    retry_delay_seconds = int(os.environ.get("RETRY_DELAY_SECONDS", 30))
-    openai_model = os.environ.get("OPENAI_MODEL", "gpt-3.5-turbo")
-    system_message = system_message
-    persona = "Wheatley"
-    context_message_limit = int(os.environ.get("CONTEXT_MESSAGE_LIMIT", 30))
+    def __init__(self):
+        self.container_name = os.environ["CONTAINER_NAME"]
+        # container_name = os.environ.get("CONTAINER_NAME")
+        self.retry_delay_seconds = int(os.environ.get("RETRY_DELAY_SECONDS", 30))
+        self.openai_model = os.environ.get("OPENAI_MODEL", "gpt-3.5-turbo")
+        self.system_message = system_message
+        self.persona = "Wheatley"
+        self.context_message_limit = int(os.environ.get("CONTEXT_MESSAGE_LIMIT", 30))

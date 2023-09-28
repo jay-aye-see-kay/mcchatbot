@@ -37,10 +37,6 @@
 
         devShells.default = pkgs.mkShell {
           buildInputs = [ python mcchatbot ];
-
-          shellHook = ''
-            export CONTAINER_NAME=business
-          '';
         };
       });
 }
