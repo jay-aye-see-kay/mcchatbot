@@ -61,7 +61,13 @@ class TestParseEvent(unittest.TestCase):
     def test_death_event(self):
         self.assertEqual(
             parse_event("[13:37:07 INFO]: Player_YY blew up"),
-            DeathEvent("13:37:07", "Player_YY blew up"),
+            DeathEvent("13:37:07", "Player_YY", "blew up"),
+        )
+
+    def test_death_event_alt(self):
+        self.assertEqual(
+            parse_event("[13:37:07 INFO]: Player_YY was slain by Iron Golem"),
+            DeathEvent("13:37:07", "Player_YY", "was slain by Iron Golem"),
         )
 
     def test_game_mode_event(self):

@@ -92,10 +92,11 @@ class LeaveEvent(LogEvent):
 @dataclass
 class DeathEvent(LogEvent):
     time: str
-    text: str
+    username: str
+    description: str
 
     def to_s(self):
-        return f'at "{self.time}" {self.text} (they died)\n'
+        return f'at "{self.time}" {self.username} {self.description} (they died)\n'
 
 
 @dataclass
@@ -141,9 +142,10 @@ def parse_event(line: str) -> LogEvent | None:
             username=username,
         )
     elif is_death(line_content):
-        text = re.sub(r"^\[.*\]: ", "", line)
-        # FIXME should parse out player name
-        return DeathEvent(time=match.group("time"), text=text)
+        words = line_content.split()
+        username = words[0]
+        description = " ".join(words[1:])
+        return DeathEvent(match.group("time"), username, description)
     elif game_mode_match:
         return GameModeEvent(
             time=match.group("time"),
