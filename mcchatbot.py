@@ -3,14 +3,11 @@
 # run like:
 #     export OPENAI_API_KEY="..."; ./chatbot.py
 
-import re
 import sqlite3
 import subprocess
-from datetime import datetime
 from time import sleep
 
-import openai
-
+from lib.ai_complete import get_response, openai_complete
 from lib.config import Config
 from lib.db import ensure_db_setup, init_db, query_context_messages, save_event
 from lib.events import LogEvent, parse_event
@@ -29,29 +26,12 @@ def say_response(cfg: Config, msg: LogEvent):
     subprocess.run(cmd)
 
 
-def get_response(cfg: Config, context_messages: list[LogEvent]) -> LogEvent:
-    chat_msg = "Here is a list of previous logs and messages in the conversation:\n"
-    for msg in context_messages:
-        chat_msg += str(msg)
-    completion = openai.ChatCompletion.create(
-        model=cfg.openai_model,
-        messages=[
-            {"role": "system", "content": cfg.system_message},
-            {"role": "user", "content": chat_msg},
-        ],
-    )
-    response = completion.choices[0].message.content  # type: ignore
-    response = re.sub(r"\n", " ", response)  # remove invalid characters
-    response = re.sub(r'"', "", response)
-    return LogEvent("Message", datetime.now(), cfg.persona, response)
-
-
 def handle_event(cfg: Config, db: sqlite3.Connection, event: LogEvent):
     save_event(db, event)
     if not event.should_respond():
         return
     context_messages = query_context_messages(cfg, db)
-    response_msg = get_response(cfg, context_messages)
+    response_msg = get_response(cfg, context_messages, openai_complete)
     say_response(cfg, response_msg)
     save_event(db, response_msg)
 

@@ -80,18 +80,19 @@ class LogEvent:
         yield self.text
 
     def __str__(self):
+        time_str = f"{self.time:%H:%M:%S}"
         match self.event_type:
             case "Message":
-                return f'at "{self.time}" {self.username} said "{self.text}"\n'
+                return f'at "{time_str}" {self.username} said "{self.text}"\n'
             case "Join":
-                return f'at "{self.time}" {self.username} joined the game\n'
+                return f'at "{time_str}" {self.username} joined the game\n'
             case "Leave":
-                return f'at "{self.time}" {self.username} left the game\n'
+                return f'at "{time_str}" {self.username} left the game\n'
             case "Death":
-                return f'at "{self.time}" {self.username} {self.text} (they died)\n'
+                return f'at "{time_str}" {self.username} {self.text} (they died)\n'
             case "GameMode":
                 return (
-                    f'at "{self.time}" {self.username} '
+                    f'at "{time_str}" {self.username} '
                     f"set their game mode to {self.text}\n"
                 )
             case _:
