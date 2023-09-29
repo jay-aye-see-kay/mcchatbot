@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime
 
 from lib.events import LogEvent, is_death, parse_event, parse_time
 
@@ -83,6 +84,14 @@ class TestParseEvent(unittest.TestCase):
         self.assertEqual(
             parse_event("[13:37:07 INFO]: <Player_YY> hey bud"),
             LogEvent("Message", parse_time("13:37:07"), "Player_YY", "hey bud"),
+        )
+
+
+class TestParseTime(unittest.TestCase):
+    def test_assumes_log_has_todays_date(self):
+        self.assertEqual(
+            parse_time("10:11:12").date(),
+            datetime.now().date(),
         )
 
 

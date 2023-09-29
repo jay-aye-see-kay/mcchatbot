@@ -103,7 +103,16 @@ class LogEvent:
 
 
 def parse_time(time_str: str) -> datetime:
-    return datetime.strptime(time_str, "%H:%M:%S")
+    parsed_time = datetime.strptime(time_str, "%H:%M:%S")
+    today = datetime.now()
+    return datetime(
+        year=today.year,
+        month=today.month,
+        day=today.day,
+        hour=parsed_time.hour,
+        minute=parsed_time.minute,
+        second=parsed_time.second,
+    )
 
 
 def parse_event(line: str) -> LogEvent | None:
