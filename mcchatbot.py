@@ -4,47 +4,35 @@
 #     export OPENAI_API_KEY="..."; ./chatbot.py
 
 import re
+import sqlite3
 import subprocess
-from datetime import datetime, timedelta
+from datetime import datetime
 from time import sleep
 
 import openai
 
 from lib.config import Config
-from lib.db import BaseEvent
-from lib.events import LeaveEvent, MessageEvent, parse_event
+from lib.db import ensure_db_setup, init_db, query_context_messages, save_event
+from lib.events import LogEvent, parse_event
 
 
-def should_respond(event: BaseEvent):
-    if isinstance(event, LeaveEvent):
-        return False
-    return True
+def say_response(cfg: Config, msg: LogEvent):
+    cmd = [
+        "docker",
+        "exec",
+        cfg.container_name,
+        "rcon-cli",
+        "tellraw",
+        "@a",
+        f'"<{msg.username}> {msg.text}"',
+    ]
+    subprocess.run(cmd)
 
 
-init_time = datetime.now()
-
-all_messages: list[BaseEvent] = []
-
-
-def respond_to_event(cfg: Config, event: BaseEvent):
-    # store all old logs in memory
-    all_messages.append(event)
-
-    # ignore first 5 sec of logs as we're probably loading up old ones
-    if not init_time + timedelta(seconds=5) < datetime.now():
-        return
+def get_response(cfg: Config, context_messages: list[LogEvent]) -> LogEvent:
     chat_msg = "Here is a list of previous logs and messages in the conversation:\n"
-
-    # limit to message count in logs
-    first_idx = 0
-    if len(all_messages) < cfg.context_message_limit:
-        first_idx = len(all_messages) - cfg.context_message_limit
-
-    for msg in all_messages[first_idx:]:
+    for msg in context_messages:
         chat_msg += str(msg)
-    if not should_respond(event):
-        return
-    # get response
     completion = openai.ChatCompletion.create(
         model=cfg.openai_model,
         messages=[
@@ -53,24 +41,22 @@ def respond_to_event(cfg: Config, event: BaseEvent):
         ],
     )
     response = completion.choices[0].message.content  # type: ignore
-    # remove invalid characters
-    response = re.sub(r"\n", " ", response)
+    response = re.sub(r"\n", " ", response)  # remove invalid characters
     response = re.sub(r'"', "", response)
-    # save this message (it won't be in the logs)
-    all_messages.append(MessageEvent(datetime.now(), "Wheatley", response))
-    process_cmd = [
-        "docker",
-        "exec",
-        cfg.container_name,
-        "rcon-cli",
-        "tellraw",
-        "@a",
-        f'"<Wheatley> {response}"',
-    ]
-    subprocess.run(process_cmd)
+    return LogEvent("Message", datetime.now(), cfg.persona, response)
 
 
-def listen_to_events(cfg: Config):
+def handle_event(cfg: Config, db: sqlite3.Connection, event: LogEvent):
+    save_event(db, event)
+    if not event.should_respond():
+        return
+    context_messages = query_context_messages(cfg, db)
+    response_msg = get_response(cfg, context_messages)
+    say_response(cfg, response_msg)
+    save_event(db, response_msg)
+
+
+def listen_to_events(cfg: Config, db: sqlite3.Connection):
     process = subprocess.Popen(
         ["docker", "logs", "--follow", cfg.container_name, "--since", "0m"],
         stdout=subprocess.PIPE,
@@ -80,14 +66,17 @@ def listen_to_events(cfg: Config):
         for line in iter(process.stdout.readline, ""):  # type: ignore
             event = parse_event(line.strip())
             if event:
-                respond_to_event(cfg, event)
+                handle_event(cfg, db, event)
     except KeyboardInterrupt:
         process.terminate()
 
 
-def listen_or_retry(cfg: Config):
+def main_loop():
+    cfg = Config()
+    db = init_db(cfg)
+    ensure_db_setup(db)
     while True:
-        listen_to_events(cfg)
+        listen_to_events(cfg, db)
         print(
             f"Could not connect to {cfg.container_name}, "
             f"trying again in {cfg.retry_delay_seconds} seconds..."
@@ -96,5 +85,4 @@ def listen_or_retry(cfg: Config):
 
 
 if __name__ == "__main__":
-    cfg = Config()
-    listen_or_retry(cfg)
+    main_loop()

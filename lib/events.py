@@ -1,9 +1,8 @@
 import re
 from datetime import datetime
+from typing import Literal, assert_never
 
 from pydantic.dataclasses import dataclass
-
-from lib.db import BaseEvent
 
 deaths = [
     "blew up",
@@ -58,63 +57,55 @@ def is_death(line: str) -> bool:
     return False
 
 
+EventType = (
+    Literal["Message"]
+    | Literal["Join"]
+    | Literal["Leave"]
+    | Literal["Death"]
+    | Literal["GameMode"]
+)
+
+
 @dataclass
-class MessageEvent(BaseEvent):
+class LogEvent:
+    event_type: EventType
     time: datetime
     username: str
     text: str
 
-    def __str__(self):
-        return f'at "{self.time}" {self.username} said "{self.text}"\n'
-
-
-@dataclass
-class JoinEvent(BaseEvent):
-    time: datetime
-    username: str
+    def __iter__(self):
+        yield self.event_type
+        yield self.time
+        yield self.username
+        yield self.text
 
     def __str__(self):
-        return f'at "{self.time}" {self.username} joined the game\n'
+        match self.event_type:
+            case "Message":
+                return f'at "{self.time}" {self.username} said "{self.text}"\n'
+            case "Join":
+                return f'at "{self.time}" {self.username} joined the game\n'
+            case "Leave":
+                return f'at "{self.time}" {self.username} left the game\n'
+            case "Death":
+                return f'at "{self.time}" {self.username} {self.text} (they died)\n'
+            case "GameMode":
+                return (
+                    f'at "{self.time}" {self.username} '
+                    f"set their game mode to {self.text}\n"
+                )
+            case _:
+                assert_never(self.event_type)
 
-
-@dataclass
-class LeaveEvent(BaseEvent):
-    time: datetime
-    username: str
-
-    def __str__(self):
-        return f'at "{self.time}" {self.username} left the game\n'
-
-
-@dataclass
-class DeathEvent(BaseEvent):
-    time: datetime
-    username: str
-    description: str
-
-    def __str__(self):
-        return f'at "{self.time}" {self.username} {self.description} (they died)\n'
-
-
-@dataclass
-class GameModeEvent(BaseEvent):
-    time: datetime
-    username: str
-    game_mode: str
-
-    def __str__(self):
-        return (
-            f'at "{self.time}" {self.username} '
-            f"set their game mode to {self.game_mode}\n"
-        )
-
+    def should_respond(self):
+        return self.event_type != "Leave"
 
 
 def parse_time(time_str: str) -> datetime:
     return datetime.strptime(time_str, "%H:%M:%S")
 
 
-def parse_event(line: str) -> BaseEvent | None:
+def parse_event(line: str) -> LogEvent | None:
     match = re.search(
         r"\[(?P<time>\d{2}:\d{2}:\d{2}) INFO\]: (?:<(?P<username>.+?)> )?(?P<text>.*)",
         line,
@@ -126,31 +117,42 @@ def parse_event(line: str) -> BaseEvent | None:
     if not match:
         return
     elif match.group("username"):
-        return MessageEvent(
+        return LogEvent(
+            event_type="Message",
             time=parse_time(match.group("time")),
             username=match.group("username"),
             text=match.group("text"),
         )
     elif line.endswith("joined the game"):
         username = re.sub(r" joined the game$", "", line_content)
-        return JoinEvent(
+        return LogEvent(
+            event_type="Join",
             time=parse_time(match.group("time")),
             username=username,
+            text="",
         )
     elif line.endswith("left the game"):
         username = re.sub(r" left the game$", "", line_content)
-        return LeaveEvent(
+        return LogEvent(
+            event_type="Leave",
             time=parse_time(match.group("time")),
             username=username,
+            text="",
         )
     elif is_death(line_content):
         words = line_content.split()
         username = words[0]
         description = " ".join(words[1:])
-        return DeathEvent(parse_time(match.group("time")), username, description)
+        return LogEvent(
+            event_type="Death",
+            time=parse_time(match.group("time")),
+            username=username,
+            text=description,
+        )
     elif game_mode_match:
-        return GameModeEvent(
+        return LogEvent(
+            event_type="GameMode",
             time=parse_time(match.group("time")),
             username=game_mode_match.group("username"),
-            game_mode=game_mode_match.group("game_mode"),
+            text=game_mode_match.group("game_mode"),
         )
