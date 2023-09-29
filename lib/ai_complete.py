@@ -39,10 +39,10 @@ def get_response(
     cfg: Config, context_messages: list[LogEvent], ai_complete: AiComplete
 ) -> LogEvent:
     prompt = format_ai_message(context_messages)
-    logging.debug("sending prompt: ", prompt)
+    logging.debug(f"sending prompt: {prompt}")
 
     response = ai_complete(cfg, prompt)
-    logging.info("received response: ", response)
+    logging.info(f"received response: {response}")
 
     return LogEvent(
         "Message",

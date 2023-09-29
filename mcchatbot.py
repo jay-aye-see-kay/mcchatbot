@@ -27,12 +27,12 @@ def say_response(cfg: Config, msg: LogEvent):
 def handle_event(cfg: Config, db: sqlite3.Connection, event: LogEvent):
     save_event(db, event)
     if not event.should_respond():
-        logging.info(f"received {event.event_type}, ignoring it", event)
+        logging.info(f"received and ignoring: {event}")
         return
-    logging.info(f"received {event.event_type}, proceeding", event)
+    logging.info(f"received and proceeding: {event}")
 
     context_messages = query_context_messages(cfg, db)
-    logging.debug(f"including {len(context_messages)} context messages", event)
+    logging.debug(f"including {len(context_messages)} context messages")
 
     response = get_response(cfg, context_messages, openai_complete)
     say_response(cfg, response)
