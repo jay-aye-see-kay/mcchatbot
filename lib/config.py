@@ -1,3 +1,4 @@
+import logging
 import os
 
 system_message = """
@@ -19,6 +20,7 @@ class Config:
     persona: str
     context_message_limit: int
     db_path: str
+    log_level: int
 
     def __init__(self, **test: bool | None):
         self.system_message = system_message
@@ -29,6 +31,7 @@ class Config:
             self.openai_model = "gpt-3.5-turbo"
             self.context_message_limit = 30
             self.db_path = ":memory:"
+            self.log_level = logging.DEBUG
         else:
             self.container_name = os.environ["CONTAINER_NAME"]
             self.retry_delay_seconds = int(os.environ.get("RETRY_DELAY_SECONDS", 30))
@@ -37,6 +40,12 @@ class Config:
                 os.environ.get("CONTEXT_MESSAGE_LIMIT", 30)
             )
             self.db_path = "./events.sqlite"
+
+            env_debug = os.environ.get("DEBUG")
+            if env_debug and env_debug.lower() == "true" or env_debug == "1":
+                self.log_level = logging.DEBUG
+            else:
+                self.log_level = logging.INFO
 
 
 testConfig = Config(test=True)

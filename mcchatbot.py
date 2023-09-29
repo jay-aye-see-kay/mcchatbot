@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-# run like:
-#     export OPENAI_API_KEY="..."; ./chatbot.py
-
+import logging
 import sqlite3
 import subprocess
 from time import sleep
@@ -29,11 +27,16 @@ def say_response(cfg: Config, msg: LogEvent):
 def handle_event(cfg: Config, db: sqlite3.Connection, event: LogEvent):
     save_event(db, event)
     if not event.should_respond():
+        logging.info(f"received {event.event_type}, ignoring it", event)
         return
+    logging.info(f"received {event.event_type}, proceeding", event)
+
     context_messages = query_context_messages(cfg, db)
-    response_msg = get_response(cfg, context_messages, openai_complete)
-    say_response(cfg, response_msg)
-    save_event(db, response_msg)
+    logging.debug(f"including {len(context_messages)} context messages", event)
+
+    response = get_response(cfg, context_messages, openai_complete)
+    say_response(cfg, response)
+    save_event(db, response)
 
 
 def listen_to_events(cfg: Config, db: sqlite3.Connection):
@@ -44,6 +47,7 @@ def listen_to_events(cfg: Config, db: sqlite3.Connection):
     )
     try:
         for line in iter(process.stdout.readline, ""):  # type: ignore
+            logging.debug(f"received log line: {line}")
             event = parse_event(line.strip())
             if event:
                 handle_event(cfg, db, event)
@@ -53,12 +57,13 @@ def listen_to_events(cfg: Config, db: sqlite3.Connection):
 
 def main_loop():
     cfg = Config()
+    logging.basicConfig(encoding="utf-8", level=cfg.log_level)
     db = init_db(cfg)
     ensure_db_setup(db)
     while True:
         listen_to_events(cfg, db)
-        print(
-            f"Could not connect to {cfg.container_name}, "
+        logging.info(
+            f"could not connect to {cfg.container_name}, "
             f"trying again in {cfg.retry_delay_seconds} seconds..."
         )
         sleep(cfg.retry_delay_seconds)

@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import datetime
 from typing import Callable
@@ -37,7 +38,12 @@ def format_ai_message(messages: list[LogEvent]):
 def get_response(
     cfg: Config, context_messages: list[LogEvent], ai_complete: AiComplete
 ) -> LogEvent:
-    response = ai_complete(cfg, format_ai_message(context_messages))
+    prompt = format_ai_message(context_messages)
+    logging.debug("sending prompt: ", prompt)
+
+    response = ai_complete(cfg, prompt)
+    logging.info("received response: ", response)
+
     return LogEvent(
         "Message",
         datetime.now(),
