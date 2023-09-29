@@ -12,11 +12,31 @@ system_message = """
 
 
 class Config:
-    def __init__(self):
-        self.container_name = os.environ["CONTAINER_NAME"]
-        # container_name = os.environ.get("CONTAINER_NAME")
-        self.retry_delay_seconds = int(os.environ.get("RETRY_DELAY_SECONDS", 30))
-        self.openai_model = os.environ.get("OPENAI_MODEL", "gpt-3.5-turbo")
+    container_name: str
+    retry_delay_seconds: int
+    openai_model: str
+    system_message: str
+    persona: str
+    context_message_limit: int
+    db_path: str
+
+    def __init__(self, **test: bool | None):
         self.system_message = system_message
         self.persona = "Wheatley"
-        self.context_message_limit = int(os.environ.get("CONTEXT_MESSAGE_LIMIT", 30))
+        if test:
+            self.container_name = "test"
+            self.retry_delay_seconds = 30
+            self.openai_model = "gpt-3.5-turbo"
+            self.context_message_limit = 30
+            self.db_path = ":memory:"
+        else:
+            self.container_name = os.environ["CONTAINER_NAME"]
+            self.retry_delay_seconds = int(os.environ.get("RETRY_DELAY_SECONDS", 30))
+            self.openai_model = os.environ.get("OPENAI_MODEL", "gpt-3.5-turbo")
+            self.context_message_limit = int(
+                os.environ.get("CONTEXT_MESSAGE_LIMIT", 30)
+            )
+            self.db_path = "./events.sqlite"
+
+
+testConfig = Config(test=True)
