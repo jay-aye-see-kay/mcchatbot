@@ -56,6 +56,8 @@ All config is done by environment variables. Documentation is best effort, see .
 
 - [ ] update github action to push a "latest" tag image
 - [ ] arm64 version of image
+- [ ] add "personas" and more customisation of the system prompt
+- [ ] support for multiple personas (still one response per event, but pick a persona at random each time)
 - [ ] rotate logs from database (currently keeps logs forever)
 - [ ] log api use by token in database (to approximate cost)
 - [ ] support other models/providers
