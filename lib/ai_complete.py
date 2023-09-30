@@ -14,11 +14,16 @@ AiComplete = Callable[[Config, str], str]
 def openai_complete(cfg: Config, content: str) -> str:
     completion = openai.ChatCompletion.create(
         model=cfg.openai_model,
+        temperature=cfg.temperature,
+        presence_penalty=cfg.presence_penalty,
+        frequency_penalty=cfg.frequency_penalty,
+        max_tokens=cfg.max_tokens,
         messages=[
             {"role": "system", "content": cfg.system_message},
             {"role": "user", "content": content},
         ],
     )
+    logging.info(f"openai usage: {completion.usage}")  # type: ignore
     return completion.choices[0].message.content  # type: ignore
 
 
