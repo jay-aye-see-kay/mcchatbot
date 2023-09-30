@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 
 system_message = """
     You are the chacter Wheatley from Portal 2 chatting with people playing minecraft.
@@ -21,11 +22,15 @@ class Config:
     context_message_limit: int
     db_path: str
     log_level: int
+    replace_names: dict[str, str]
 
     def __init__(self, **test: bool | None):
         self.system_message = system_message
         self.persona = "Wheatley"
         self.base_path = os.environ.get("MCC_BASE_PATH", "/var/lib/mcchatbot")
+        self.replace_names = self.parse_replace_names(
+            os.environ.get("MMC_REPLACE_NAMES", "")
+        )
         if test:
             self.container_name = "test"
             self.retry_delay_seconds = 30
@@ -48,5 +53,20 @@ class Config:
             else:
                 self.log_level = logging.INFO
 
+    def parse_replace_names(self, env_value: str) -> dict[str, str]:
+        try:
+            parsed = {}
+            env_value = re.sub(r" ", "", env_value)
+            pairs = env_value.split(",")
+            for pair in pairs:
+                if "=" in pair:
+                    [username, name] = pair.split("=")
+                    parsed[username] = name
+            return parsed
+        except Exception as e:
+            logging.error(f"could not parse value of MMC_REPLACE_NAMES {e}")
+            return {}
 
-testConfig = Config(test=True)
+
+
+test_config = Config(test=True)

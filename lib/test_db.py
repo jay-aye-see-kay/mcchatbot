@@ -2,7 +2,7 @@ import copy
 import unittest
 from datetime import datetime
 
-from lib.config import testConfig
+from lib.config import test_config
 from lib.db import init_db, query_context_messages, save_event
 from lib.events import LogEvent
 
@@ -19,13 +19,13 @@ class TestSavingEventsToDb(unittest.TestCase):
     def test_save_and_read(self):
         for event in test_events:
             with self.subTest(event=event):
-                db = init_db(testConfig)
+                db = init_db(test_config)
                 save_event(db, event)
                 msg_from_db = LogEvent(*db.execute("select * from events").fetchone())
                 self.assertEqual(event, msg_from_db)
 
     def test_query_context_messages(self):
-        cfg = copy.deepcopy(testConfig)
+        cfg = copy.deepcopy(test_config)
         cfg.context_message_limit = 3
         db = init_db(cfg)
         for event in test_events:

@@ -4,6 +4,8 @@ from typing import Literal, assert_never
 
 from pydantic.dataclasses import dataclass
 
+from lib.config import Config
+
 deaths = [
     "blew up",
     "burned to death",
@@ -79,20 +81,27 @@ class LogEvent:
         yield self.username
         yield self.text
 
-    def to_context_line(self):
+    def to_context_line(self, cfg: Config):
+        # format time
         time_str = f"{self.time:%H:%M:%S}"
+
+        # replace username if configured to
+        username = self.username
+        if username in cfg.replace_names:
+            username = cfg.replace_names[username]
+
         match self.event_type:
             case "Message":
-                return f'at "{time_str}" {self.username} said "{self.text}"\n'
+                return f'at "{time_str}" {username} said "{self.text}"\n'
             case "Join":
-                return f'at "{time_str}" {self.username} joined the game\n'
+                return f'at "{time_str}" {username} joined the game\n'
             case "Leave":
-                return f'at "{time_str}" {self.username} left the game\n'
+                return f'at "{time_str}" {username} left the game\n'
             case "Death":
-                return f'at "{time_str}" {self.username} {self.text} (they died)\n'
+                return f'at "{time_str}" {username} {self.text} (they died)\n'
             case "GameMode":
                 return (
-                    f'at "{time_str}" {self.username} '
+                    f'at "{time_str}" {username} '
                     f"set their game mode to {self.text}\n"
                 )
             case _:

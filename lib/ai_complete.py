@@ -28,17 +28,17 @@ def sanitize_message(msg: str) -> str:
     return msg
 
 
-def format_ai_message(messages: list[LogEvent]):
+def format_ai_message(cfg: Config, messages: list[LogEvent]):
     chat_msg = "Here is a list of previous logs and messages in the conversation:\n"
     for msg in messages:
-        chat_msg += msg.to_context_line()
+        chat_msg += msg.to_context_line(cfg)
     return chat_msg
 
 
 def get_response(
     cfg: Config, context_messages: list[LogEvent], ai_complete: AiComplete
 ) -> LogEvent:
-    prompt = format_ai_message(context_messages)
+    prompt = format_ai_message(cfg, context_messages)
     logging.debug(f"sending prompt: {prompt}")
 
     response = ai_complete(cfg, prompt)
