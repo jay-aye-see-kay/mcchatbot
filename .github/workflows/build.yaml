@@ -19,4 +19,4 @@ jobs:
 
       - run: ./scripts/build-image.sh
 
-      - run: docker push jayayeseekay/mcchatbot
+      - run: docker push --all-tags jayayeseekay/mcchatbot
