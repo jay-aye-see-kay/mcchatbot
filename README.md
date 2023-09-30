@@ -52,9 +52,10 @@ All config is done by environment variables. Documentation is best effort, see .
 - `MCC_FREQUENCY_PENALTY`: https://platform.openai.com/docs/api-reference/chat/create#frequency_penalty
 - `MCC_MAX_TOKENS`: https://platform.openai.com/docs/api-reference/chat/create#max_tokens
 
-## Roadmap / todo
+## Roadmap / todo / ideas
 
+- [ ] update github action to push a "latest" tag image
+- [ ] arm64 version of image
 - [ ] rotate logs from database (currently keeps logs forever)
-- [ ] log api use by token in database
-- [ ] allow limiting input by tokens
+- [ ] log api use by token in database (to approximate cost)
 - [ ] support other models/providers
