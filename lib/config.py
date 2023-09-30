@@ -23,9 +23,9 @@ class Config:
     db_path: str
     log_level: int
     replace_names: dict[str, str]
-    temperature: int
-    presence_penalty: int
-    frequency_penalty: int
+    temperature: float
+    presence_penalty: float
+    frequency_penalty: float
     max_tokens: int | None
 
     def __init__(self, **test: bool | None):
@@ -33,16 +33,16 @@ class Config:
         self.persona = "Wheatley"
         self.base_path = os.environ.get("MCC_BASE_PATH", "/var/lib/mcchatbot")
         self.replace_names = self.parse_replace_names(
-            os.environ.get("MMC_REPLACE_NAMES", "")
+            os.environ.get("MCC_REPLACE_NAMES", "")
         )
 
         # @see: https://platform.openai.com/docs/api-reference/chat/create?lang=python
         # between 0 and 2, default 1
-        self.temperature = int(os.environ.get("MCC_TEMPERATURE", 1))
+        self.temperature = float(os.environ.get("MCC_TEMPERATURE", 1))
         # between -2 and 2, default 0
-        self.presence_penalty = int(os.environ.get("MCC_PRESENCE_PENALTY", 0))
+        self.presence_penalty = float(os.environ.get("MCC_PRESENCE_PENALTY", 0))
         # between -2 and 2, default 0
-        self.frequency_penalty = int(os.environ.get("MCC_FREQUENCY_PENALTY", 0))
+        self.frequency_penalty = float(os.environ.get("MCC_FREQUENCY_PENALTY", 0))
         # default is model's max value
         self.max_tokens = int(os.environ.get("MCC_MAX_TOKENS", 0)) or None
 
@@ -54,7 +54,7 @@ class Config:
             self.db_path = ":memory:"
             self.log_level = logging.DEBUG
         else:
-            self.container_name = os.environ["MMC_CONTAINER_NAME"]
+            self.container_name = os.environ["MCC_CONTAINER_NAME"]
             self.retry_delay_seconds = int(
                 os.environ.get("MCC_RETRY_DELAY_SECONDS", 30)
             )
@@ -81,7 +81,7 @@ class Config:
                     parsed[username] = name
             return parsed
         except Exception as e:
-            logging.error(f"could not parse value of MMC_REPLACE_NAMES {e}")
+            logging.error(f"could not parse value of MCC_REPLACE_NAMES {e}")
             return {}
 
 
