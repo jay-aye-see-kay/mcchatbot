@@ -14,16 +14,16 @@
         # IMPORTANT: keep in sync with version in ./setup.py
         mccVersion = "0.1";
 
-        python = pkgs.python311.withPackages (p: [ p.openai p.pydantic ]);
+        python = pkgs.python311.withPackages (p: [
+          p.openai
+          p.pydantic
+          p.docker
+        ]);
 
         mcchatbot = pkgs.python311Packages.buildPythonApplication {
           pname = "mcchatbot";
           version = mccVersion;
-          propagatedBuildInputs = [
-            pkgs.docker-client # depends on docker cli
-            pkgs.python311Packages.openai
-            pkgs.python311Packages.pydantic
-          ];
+          propagatedBuildInputs = [ python ];
           src = ./.;
         };
 

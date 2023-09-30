@@ -2,8 +2,9 @@
 
 import logging
 import sqlite3
-import subprocess
 from time import sleep
+
+import docker
 
 from lib.ai_complete import get_response, openai_complete
 from lib.config import Config
@@ -12,16 +13,9 @@ from lib.events import LogEvent, parse_event
 
 
 def say_response(cfg: Config, msg: LogEvent):
-    cmd = [
-        "docker",
-        "exec",
-        cfg.container_name,
-        "rcon-cli",
-        "tellraw",
-        "@a",
-        f'"<{msg.username}> {msg.text}"',
-    ]
-    subprocess.run(cmd)
+    container = docker.from_env().containers.get(cfg.container_name)
+    cmd = ["rcon-cli", "tellraw", "@a", f'"<{msg.username}> {msg.text}"']
+    container.exec_run(cmd) # type: ignore
 
 
 def handle_event(cfg: Config, db: sqlite3.Connection, event: LogEvent):
@@ -40,19 +34,16 @@ def handle_event(cfg: Config, db: sqlite3.Connection, event: LogEvent):
 
 
 def listen_to_events(cfg: Config, db: sqlite3.Connection):
-    process = subprocess.Popen(
-        ["docker", "logs", "--follow", cfg.container_name, "--since", "0m"],
-        stdout=subprocess.PIPE,
-        universal_newlines=True,
-    )
     try:
-        for line in iter(process.stdout.readline, ""):  # type: ignore
+        container = docker.from_env().containers.get(cfg.container_name)
+        for line in container.logs(stream=True): # type: ignore
             logging.debug(f"received log line: {line}")
             event = parse_event(line.strip())
             if event:
                 handle_event(cfg, db, event)
-    except KeyboardInterrupt:
-        process.terminate()
+    except Exception as e:
+        logging.debug(f"exception reading from container logs: {e}")
+        return
 
 
 def main_loop():
