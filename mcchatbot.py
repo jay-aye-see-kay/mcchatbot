@@ -2,8 +2,8 @@
 
 import logging
 import sqlite3
-from time import sleep
 from datetime import datetime
+from time import sleep
 
 import docker
 
@@ -16,7 +16,7 @@ from lib.events import LogEvent, parse_event
 def say_response(cfg: Config, msg: LogEvent):
     container = docker.from_env().containers.get(cfg.container_name)
     cmd = ["rcon-cli", "tellraw", "@a", f'"<{msg.username}> {msg.text}"']
-    container.exec_run(cmd) # type: ignore
+    container.exec_run(cmd)  # type: ignore
 
 
 def handle_event(cfg: Config, db: sqlite3.Connection, event: LogEvent):
@@ -37,7 +37,7 @@ def handle_event(cfg: Config, db: sqlite3.Connection, event: LogEvent):
 def listen_to_events(cfg: Config, db: sqlite3.Connection):
     try:
         container = docker.from_env().containers.get(cfg.container_name)
-        for line in container.logs(stream=True, since=datetime.now()): # type: ignore
+        for line in container.logs(stream=True, since=datetime.now()):  # type: ignore
             line = line.strip().decode("utf-8")
             logging.debug(f"received log line: {line}")
             event = parse_event(line.strip())

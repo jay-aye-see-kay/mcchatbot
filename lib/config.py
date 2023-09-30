@@ -40,7 +40,9 @@ class Config:
             self.log_level = logging.DEBUG
         else:
             self.container_name = os.environ["MMC_CONTAINER_NAME"]
-            self.retry_delay_seconds = int(os.environ.get("MCC_RETRY_DELAY_SECONDS", 30))
+            self.retry_delay_seconds = int(
+                os.environ.get("MCC_RETRY_DELAY_SECONDS", 30)
+            )
             self.openai_model = os.environ.get("MCC_OPENAI_MODEL", "gpt-3.5-turbo")
             self.context_message_limit = int(
                 os.environ.get("MCC_CONTEXT_MESSAGE_LIMIT", 30)
@@ -66,7 +68,6 @@ class Config:
         except Exception as e:
             logging.error(f"could not parse value of MMC_REPLACE_NAMES {e}")
             return {}
-
 
 
 test_config = Config(test=True)

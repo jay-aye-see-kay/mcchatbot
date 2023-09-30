@@ -27,7 +27,7 @@ at "10:11:13" user_2 said "h1"
                     "user_2",
                     "h1",
                 ),
-            ]
+            ],
         )
         self.assertEqual(actual, expected)
 
@@ -47,6 +47,6 @@ at "10:11:12" John said "hey"
                     "user_1",
                     "hey",
                 ),
-            ]
+            ],
         )
         self.assertEqual(actual, expected)

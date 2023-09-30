@@ -2,6 +2,7 @@ import unittest
 
 from lib.config import Config
 
+
 class TestReplaceNames(unittest.TestCase):
     def test_handles_empty_str(self):
         config = Config(test=True)
@@ -37,4 +38,3 @@ class TestReplaceNames(unittest.TestCase):
             invalid_str = ",,,==,==,=,=,=,="
             self.assertEqual(config.parse_replace_names(invalid_str), {})
             self.assertEqual(len(cm.output), 1)
-
