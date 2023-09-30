@@ -31,7 +31,7 @@ def sanitize_message(msg: str) -> str:
 def format_ai_message(messages: list[LogEvent]):
     chat_msg = "Here is a list of previous logs and messages in the conversation:\n"
     for msg in messages:
-        chat_msg += str(msg)
+        chat_msg += msg.to_context_line()
     return chat_msg
 
 

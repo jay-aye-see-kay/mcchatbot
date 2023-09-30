@@ -79,7 +79,7 @@ class LogEvent:
         yield self.username
         yield self.text
 
-    def __str__(self):
+    def to_context_line(self):
         time_str = f"{self.time:%H:%M:%S}"
         match self.event_type:
             case "Message":
