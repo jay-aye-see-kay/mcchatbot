@@ -17,7 +17,7 @@
           pname = "mcchatbot";
           version = "0.1";
           propagatedBuildInputs = [
-            pkgs.docker # depends on docker cli
+            pkgs.docker-client # depends on docker cli
             pkgs.python311Packages.openai
             pkgs.python311Packages.pydantic
           ];
