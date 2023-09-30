@@ -7,14 +7,15 @@ from lib.events import LogEvent
 
 def init_db(cfg: Config) -> sqlite3.Connection:
     logging.info(f"opening sqlite file: {cfg.db_path}")
-    con = sqlite3.connect(cfg.db_path)
-    con.row_factory = sqlite3.Row
-    return con
+    db = sqlite3.connect(cfg.db_path)
 
-
-def ensure_db_setup(db: sqlite3.Connection):
     logging.debug('ensuring db table "events" exists')
     db.execute("CREATE TABLE IF NOT EXISTS events(event_type, time, username, text)")
+
+    events_count = db.execute("select count(*) from events").fetchone()[0]
+    logging.info(f"found {events_count} events in db")
+
+    return db
 
 
 def save_event(db: sqlite3.Connection, event: LogEvent):

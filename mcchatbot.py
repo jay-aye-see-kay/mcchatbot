@@ -7,7 +7,7 @@ from time import sleep
 
 from lib.ai_complete import get_response, openai_complete
 from lib.config import Config
-from lib.db import ensure_db_setup, init_db, query_context_messages, save_event
+from lib.db import init_db, query_context_messages, save_event
 from lib.events import LogEvent, parse_event
 
 
@@ -59,7 +59,6 @@ def main_loop():
     cfg = Config()
     logging.basicConfig(encoding="utf-8", level=cfg.log_level)
     db = init_db(cfg)
-    ensure_db_setup(db)
     while True:
         listen_to_events(cfg, db)
         logging.info(

@@ -3,7 +3,7 @@ import unittest
 from datetime import datetime
 
 from lib.config import testConfig
-from lib.db import ensure_db_setup, init_db, query_context_messages, save_event
+from lib.db import init_db, query_context_messages, save_event
 from lib.events import LogEvent
 
 test_events: list[LogEvent] = [
@@ -20,7 +20,6 @@ class TestSavingEventsToDb(unittest.TestCase):
         for event in test_events:
             with self.subTest(event=event):
                 db = init_db(testConfig)
-                ensure_db_setup(db)
                 save_event(db, event)
                 msg_from_db = LogEvent(*db.execute("select * from events").fetchone())
                 self.assertEqual(event, msg_from_db)
@@ -29,7 +28,6 @@ class TestSavingEventsToDb(unittest.TestCase):
         cfg = copy.deepcopy(testConfig)
         cfg.context_message_limit = 3
         db = init_db(cfg)
-        ensure_db_setup(db)
         for event in test_events:
             save_event(db, event)
         messages = query_context_messages(cfg, db)
