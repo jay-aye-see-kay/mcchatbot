@@ -39,7 +39,22 @@
         };
 
         devShells.default = pkgs.mkShell {
-          buildInputs = [ python pkgs.sqlite ];
+          buildInputs = [
+            python
+
+            # to inspect the database
+            pkgs.sqlite
+
+            # repeating these to keep python lsp happy
+            pkgs.python311Packages.openai
+            pkgs.python311Packages.pydantic
+            pkgs.python311Packages.docker
+
+            # dev tools
+            pkgs.just
+            pkgs.python311Packages.isort
+            pkgs.python311Packages.black
+          ];
         };
       });
 }

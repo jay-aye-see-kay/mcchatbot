@@ -1,9 +1,10 @@
-name: "Build"
+name: "Test and Build"
 on:
+  # FIXME only run on main (i.e. deploy after merge)
   pull_request:
   push:
 jobs:
-  build:
+  test-and-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -17,6 +18,8 @@ jobs:
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: ./scripts/build-image.sh
+      - run: just test
+      - run: just check-formatting
 
+      - run: just build-image
       - run: docker push --all-tags jayayeseekay/mcchatbot

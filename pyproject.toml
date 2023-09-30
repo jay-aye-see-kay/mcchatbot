@@ -1,0 +1,3 @@
+[tool.isort]
+profile = "black"
+extend_skip = ["result"]
