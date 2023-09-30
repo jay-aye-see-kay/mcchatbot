@@ -12,7 +12,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
 
         # IMPORTANT: keep in sync with version in ./setup.py
-        mccVersion = "0.1";
+        mccVersion = "0.2";
 
         python = pkgs.python311.withPackages (p: [
           p.openai
