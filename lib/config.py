@@ -25,6 +25,7 @@ class Config:
     def __init__(self, **test: bool | None):
         self.system_message = system_message
         self.persona = "Wheatley"
+        self.base_path = os.environ.get("MCC_BASE_PATH", "/var/lib/mcchatbot")
         if test:
             self.container_name = "test"
             self.retry_delay_seconds = 30
@@ -33,13 +34,13 @@ class Config:
             self.db_path = ":memory:"
             self.log_level = logging.DEBUG
         else:
-            self.container_name = os.environ["CONTAINER_NAME"]
-            self.retry_delay_seconds = int(os.environ.get("RETRY_DELAY_SECONDS", 30))
-            self.openai_model = os.environ.get("OPENAI_MODEL", "gpt-3.5-turbo")
+            self.container_name = os.environ["MMC_CONTAINER_NAME"]
+            self.retry_delay_seconds = int(os.environ.get("MCC_RETRY_DELAY_SECONDS", 30))
+            self.openai_model = os.environ.get("MCC_OPENAI_MODEL", "gpt-3.5-turbo")
             self.context_message_limit = int(
-                os.environ.get("CONTEXT_MESSAGE_LIMIT", 30)
+                os.environ.get("MCC_CONTEXT_MESSAGE_LIMIT", 30)
             )
-            self.db_path = "./events.sqlite"
+            self.db_path = os.path.join(self.base_path, "data.sqlite")
 
             env_debug = os.environ.get("DEBUG")
             if env_debug and env_debug.lower() == "true" or env_debug == "1":
