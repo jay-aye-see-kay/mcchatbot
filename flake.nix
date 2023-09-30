@@ -27,7 +27,7 @@
           src = ./.;
         };
 
-        dockerImage = pkgs.dockerTools.buildLayeredImage {
+        dockerImage = pkgs.dockerTools.buildImage {
           name = "jayayeseekay/mcchatbot";
           tag = mccVersion;
           config = { Cmd = [ "${mcchatbot}/bin/mcchatbot.py" ]; };
