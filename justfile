@@ -28,5 +28,5 @@ tag-and-push-images:
   #!/bin/sh
   version=$(cat version)
   docker tag "jayayeseekay/mcchatbot:latest" "jayayeseekay/mcchatbot:${version}"
-  docker tag "jayayeseekay/mcchatbot:latest-arm" "jayayeseekay/mcchatbot:${version}arm"
+  docker tag "jayayeseekay/mcchatbot:latest-arm" "jayayeseekay/mcchatbot:${version}-arm64"
   docker push --all-tags "jayayeseekay/mcchatbot"
