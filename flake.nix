@@ -11,8 +11,10 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        # IMPORTANT: keep in sync with version in ./setup.py
-        mccVersion = "0.2";
+        version = builtins.replaceStrings
+          [ "\n" ]
+          [ "" ]
+          (builtins.readFile ./version);
 
         python = pkgs.python311.withPackages (p: [
           p.openai
@@ -21,15 +23,15 @@
         ]);
 
         mcchatbot = pkgs.python311Packages.buildPythonApplication {
+          inherit version;
           pname = "mcchatbot";
-          version = mccVersion;
           propagatedBuildInputs = [ python ];
           src = ./.;
         };
 
         dockerImage = pkgs.dockerTools.buildImage {
           name = "jayayeseekay/mcchatbot";
-          tag = mccVersion;
+          tag = "latest";
           config = { Cmd = [ "${mcchatbot}/bin/mcchatbot.py" ]; };
         };
       in

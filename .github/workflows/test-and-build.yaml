@@ -26,4 +26,4 @@ jobs:
       - name: build image
         run: nix develop --command just build-image
       - name: push image
-        run: docker push --all-tags jayayeseekay/mcchatbot
+        run: nix develop --command just tag-and-push-image

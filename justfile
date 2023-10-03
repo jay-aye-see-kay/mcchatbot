@@ -15,3 +15,9 @@ test:
 build-image:
   nix build .#dockerImage
   docker load < result
+
+tag-and-push-image:
+  #!/bin/sh
+  version=$(cat version)
+  docker tag "jayayeseekay/mcchatbot:latest" "jayayeseekay/mcchatbot:$version"
+  docker push --all-tags "jayayeseekay/mcchatbot"
