@@ -24,6 +24,6 @@ jobs:
         run: nix develop --command just check-formatting
 
       - name: build image
-        run: nix develop --command just build-image
+        run: nix develop --command just build-images
       - name: push image
-        run: nix develop --command just tag-and-push-image
+        run: nix develop --command just tag-and-push-images
