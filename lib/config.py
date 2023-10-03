@@ -2,7 +2,8 @@ import logging
 import os
 import re
 
-system_message = """
+default_bot_name = "Wheatley"
+default_system_message = """
     You are the chacter Wheatley from Portal 2 chatting with people playing minecraft.
     Your responses must be formatted in plain text only. 
     Previous messages include a timestamp and username only for your context, you 
@@ -18,7 +19,7 @@ class Config:
     retry_delay_seconds: int
     openai_model: str
     system_message: str
-    persona: str
+    bot_name: str
     context_message_limit: int
     db_path: str
     log_level: int
@@ -29,8 +30,10 @@ class Config:
     max_tokens: int | None
 
     def __init__(self, **test: bool | None):
-        self.system_message = system_message
-        self.persona = "Wheatley"
+        self.bot_name = os.environ.get("MCC_BOT_NAME", default_bot_name)
+        self.system_message = os.environ.get(
+            "MCC_SYSTEM_MESSAGE", default_system_message
+        )
         self.base_path = os.environ.get("MCC_BASE_PATH", "/var/lib/mcchatbot")
         self.replace_names = self.parse_replace_names(
             os.environ.get("MCC_REPLACE_NAMES", "")

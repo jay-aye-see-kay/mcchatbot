@@ -52,6 +52,6 @@ def get_response(
     return LogEvent(
         "Message",
         datetime.now(),
-        cfg.persona,
+        cfg.bot_name,
         sanitize_message(response),
     )
