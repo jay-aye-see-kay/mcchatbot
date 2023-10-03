@@ -6,6 +6,8 @@ Have you ever wanted a chatbot to say hi when you join or insult you when you di
 
 ![swappy-20231003-210656](https://github.com/jay-aye-see-kay/mcchatbot/assets/23488939/2408e7e0-7718-480a-acbb-19f794e3db3e)
 
+Available on docker hub: https://hub.docker.com/r/jayayeseekay/mcchatbot
+
 It's pretty hacky, if you find bugs or have improvements let me know.
 
 ## Requirements
