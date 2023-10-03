@@ -1,5 +1,15 @@
 # A minecraft chatbot
 
+## What and why
+
+Have you ever wanted a chatbot to say hi when you join or insult you when you die? I did, and it was surprisingly nice to have around so I've made it a container others can use.
+
+![swappy-20231003-210656](https://github.com/jay-aye-see-kay/mcchatbot/assets/23488939/2408e7e0-7718-480a-acbb-19f794e3db3e)
+
+It's pretty hacky, if you find bugs or have improvements let me know.
+
+## Requirements
+
 - requires a minecraft running in a docker container with `rcon-cli` installed
 - doesn't requires any minecraft plugins, works by listening to server logs and responding via `rcon-cli`
 
