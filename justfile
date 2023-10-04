@@ -14,13 +14,11 @@ test:
 
 build-x86-image:
   echo "building x86 image..."
-  nix build .#buildx86Image
-  docker load < result
+  nix build .#buildx86Image && ./result | docker load
 
 build-arm64-image:
   echo "building arm64 image..."
-  nix build .#buildArmImage
-  docker load < result
+  nix build .#buildArmImage && ./result | docker load
 
 build-images: build-x86-image build-arm64-image
 
