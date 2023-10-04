@@ -29,14 +29,14 @@
           src = ./.;
         };
 
-        buildx86Image = pkgs.dockerTools.streamLayeredImage {
+        buildx86Image = pkgs.dockerTools.buildImage {
           name = "jayayeseekay/mcchatbot";
           tag = "latest";
           architecture = "amd64";
           config = { Cmd = [ "${mcchatbot}/bin/mcchatbot.py" ]; };
         };
 
-        buildArmImage = pkgs.dockerTools.streamLayeredImage {
+        buildArmImage = pkgs.dockerTools.buildImage {
           name = "jayayeseekay/mcchatbot";
           tag = "latest-arm64";
           architecture = "arm64";
