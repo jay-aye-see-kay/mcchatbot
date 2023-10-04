@@ -14,12 +14,15 @@ jobs:
           username: jayayeseekay
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: expt.
+      - name: see things
         run: |
           whoami
-          ll /etc/docker/daemon.json
+          ls -lah /etc/docker/daemon.json
           cat /etc/docker/daemon.json
           systemctl status docker
+
+      - name: change things
+        run: |
           echo "about to modify docker config"
           echo '{ "exec-opts": ["native.cgroupdriver=cgroupfs"], "cgroup-parent": "/actions_job", "max-concurrent-uploads": 20 }' > /etc/docker/daemon.json
           systemctl restart docker
