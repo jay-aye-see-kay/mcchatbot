@@ -31,15 +31,15 @@ services:
       VERSION: "1.20.1"
 
   mcchatbot:
-    image: jayayeseekay/mcchatbot:0.2
+    image: jayayeseekay/mcchatbot:0.3.2
     env_file: ".env" # important to read OPENAI_API_KEY
     environment:
       MCC_CONTAINER_NAME: your_minecraft_server # must match container_name above
       MCC_BOT_NAME: "Wheatly"
       MCC_SYSTEM_MESSAGE: |
         You are the chacter Wheatley from Portal 2.
-        Do not offer assistance or try to be helpful. 
-        Keep your responses short, about 1 line. 
+        Do not offer assistance or try to be helpful.
+        Keep your responses short, about 1 line.
     volumes:
       - ./mcchatbot-data:/var/lib/mcchatbot
       # required: read-only access to docker to get logs
