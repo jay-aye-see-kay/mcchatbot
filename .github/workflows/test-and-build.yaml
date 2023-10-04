@@ -18,3 +18,7 @@ jobs:
         run: |
           cat /etc/docker/daemon.json
           systemctl status docker
+          echo '{ "exec-opts": ["native.cgroupdriver=cgroupfs"], "cgroup-parent": "/actions_job", "max-concurrent-uploads": 20 }' > /etc/docker/daemon.json
+          systemctl restart docker
+          cat /etc/docker/daemon.json
+          systemctl status docker
