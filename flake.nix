@@ -29,20 +29,20 @@
           src = ./.;
         };
 
-        buildImage = extraConfig: pkgs.dockerTools.buildImage ({
+        buildImage = { architecture, tag }: pkgs.dockerTools.buildImage {
+          inherit architecture tag;
           name = "jayayeseekay/mcchatbot";
-          tag = "latest";
           config = {
             Cmd = [ "${mcchatbot}/bin/mcchatbot.py" ];
             Env = [ "TZDIR=${pkgs.tzdata}/share/zoneinfo" ];
           };
-        } // extraConfig);
+        };
       in
       {
         packages = {
           inherit python mcchatbot;
-          buildx86Image = buildImage { architecture = "amd64"; };
-          buildArmImage = buildImage { architecture = "arm64"; };
+          buildx86Image = buildImage { architecture = "amd64"; tag = "latest"; };
+          buildArmImage = buildImage { architecture = "arm64"; tag = "latest-arm"; };
         };
 
         devShells.default = pkgs.mkShell {
