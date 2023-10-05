@@ -42,7 +42,7 @@
         packages = {
           inherit python mcchatbot;
           buildx86Image = buildImage { architecture = "amd64"; tag = "latest"; };
-          buildArmImage = buildImage { architecture = "arm64"; tag = "latest-arm"; };
+          buildArmImage = buildImage { architecture = "arm64"; tag = "latest-arm64"; };
         };
 
         devShells.default = pkgs.mkShell {
